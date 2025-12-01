@@ -4,9 +4,11 @@ fn main() {
     let input = include_str!("input.txt");
     let part_1 = part_1(input);
     println!("{}", part_1);
+    let part_2 = part_2(input);
+    println!("{}", part_2);
 }
 
-fn part_1(input: &str) -> usize {
+fn part_1(input: &str) -> u16 {
     let mut turns = Vec::new();
     for line in input.lines() {
         let turn: Turn = line.parse().expect("Expected parse");
@@ -26,32 +28,66 @@ fn part_1(input: &str) -> usize {
     count
 }
 
+fn part_2(input: &str) -> u16 {
+    let mut turns = Vec::new();
+    for line in input.lines() {
+        let turn: Turn = line.parse().expect("Expected parse");
+        turns.push(turn);
+    }
+
+    let mut lock = Lock::new();
+
+    for turn in turns {
+        lock.turn(turn);
+    }
+
+    lock.clicks()
+}
+
 struct Lock {
-    inner: u16,
+    current: u16,
+    clicks: u16,
 }
 
 impl Lock {
     fn new() -> Self {
-        Self { inner: 50 }
+        Self {
+            current: 50,
+            clicks: 0,
+        }
     }
 
     fn current(&self) -> u16 {
-        self.inner
+        self.current
+    }
+
+    fn clicks(&self) -> u16 {
+        self.clicks
     }
 
     fn turn(&mut self, turn: Turn) {
-        let add = match turn {
+        let mut val = self.current as i16;
+        let mut clicks = 0;
+
+        match turn {
             Turn::Left(left) => {
-                let mut left = -(left as i16);
-                while left < 100 {
-                    left += 100;
+                val = val - left as i16;
+                while val < 0 {
+                    val += 100;
+                    clicks += 1;
                 }
-                left as u16
             }
-            Turn::Right(right) => right,
-        };
-        self.inner += add;
-        self.inner %= 100;
+            Turn::Right(right) => {
+                val = val + right as i16;
+                while val >= 100 {
+                    val -= 100;
+                    clicks += 1;
+                }
+            }
+        }
+
+        self.current = val as u16;
+        self.clicks += clicks;
     }
 }
 
@@ -79,12 +115,19 @@ impl FromStr for Turn {
 
 #[cfg(test)]
 mod tests {
-    use crate::part_1;
+    use super::*;
 
     #[test]
     fn test_part_1() {
         let input = include_str!("example.txt");
         let out = part_1(input);
         assert_eq!(out, 3);
+    }
+
+    #[test]
+    fn test_part_2() {
+        let input = include_str!("example.txt");
+        let out = part_2(input);
+        assert_eq!(out, 6);
     }
 }
