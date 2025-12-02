@@ -1,12 +1,16 @@
 use silly_number::SillyNumber;
-use std::str::FromStr;
+use silly_number_part_two::is_silly_number_part_two;
+use std::{ops::RangeInclusive, str::FromStr};
 
 mod silly_number;
+mod silly_number_part_two;
 
 fn main() {
     let input = include_str!("input.txt");
-    let part_one = part_one(input);
-    println!("{part_one}");
+    let value = part_one(input);
+    println!("{value}");
+    let value = part_two(input);
+    println!("{value}");
 }
 
 fn part_one(text: &str) -> usize {
@@ -16,6 +20,20 @@ fn part_one(text: &str) -> usize {
         let range: Range = range.trim().parse().unwrap();
         for silly_number in range.silly_numbers() {
             sum += silly_number;
+        }
+    }
+    sum
+}
+
+fn part_two(text: &str) -> usize {
+    let mut sum = 0;
+    let ranges = text.trim().split(",");
+    for range in ranges {
+        let range: Range = range.trim().parse().unwrap();
+        for number in range.iter() {
+            if is_silly_number_part_two(number) {
+                sum += number;
+            }
         }
     }
     sum
@@ -64,6 +82,9 @@ impl Range {
     }
     pub fn silly_numbers(self) -> RangeSillyNumberIterator {
         RangeSillyNumberIterator::new(self.from, self.to)
+    }
+    pub fn iter(self) -> RangeInclusive<usize> {
+        self.from..=self.to
     }
 }
 
@@ -143,5 +164,12 @@ mod tests {
         let example = include_str!("example.txt");
         let output = part_one(example);
         assert_eq!(output, 1227775554);
+    }
+
+    #[test]
+    fn test_part_two() {
+        let example = include_str!("example.txt");
+        let output = part_two(example);
+        assert_eq!(output, 4174379265);
     }
 }
