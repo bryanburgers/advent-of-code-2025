@@ -29,6 +29,10 @@ impl Range {
             None
         }
     }
+
+    pub fn size(&self) -> u64 {
+        self.to - self.from + 1
+    }
 }
 
 impl FromStr for Range {
@@ -91,5 +95,17 @@ mod tests {
     fn test_parse() {
         let parsed: Range = "1-10".parse().expect("successful parse");
         assert_eq!(parsed, Range::new(1, 10));
+    }
+
+    #[test]
+    fn test_size() {
+        let range = Range::new(1, 1);
+        assert_eq!(range.size(), 1);
+
+        let range = Range::new(1, 2);
+        assert_eq!(range.size(), 2);
+
+        let range = Range::new(100, 200);
+        assert_eq!(range.size(), 101);
     }
 }

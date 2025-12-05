@@ -50,6 +50,10 @@ impl Lookup {
 
         false
     }
+
+    pub fn total(&self) -> u64 {
+        self.ranges.iter().map(|range| range.size()).sum()
+    }
 }
 
 #[cfg(test)]
@@ -98,5 +102,23 @@ mod tests {
 
         let lookup = Lookup::from([]);
         assert!(!lookup.contains(20));
+    }
+
+    #[test]
+    fn test_total() {
+        let lookup = Lookup::from([]);
+        assert_eq!(lookup.total(), 0);
+
+        let lookup = Lookup::from([Range::new(1, 1)]);
+        assert_eq!(lookup.total(), 1);
+
+        let lookup = Lookup::from([Range::new(1, 4)]);
+        assert_eq!(lookup.total(), 4);
+
+        let lookup = Lookup::from([Range::new(1, 4), Range::new(6, 7)]);
+        assert_eq!(lookup.total(), 6);
+
+        let lookup = Lookup::from([Range::new(1, 4), Range::new(5, 5), Range::new(6, 7)]);
+        assert_eq!(lookup.total(), 7);
     }
 }
